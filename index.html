@@ -8,7 +8,7 @@
         body {font-family: monospace; background: #000; color: #f00; text-align: center; margin: 0; padding: 10px;}
         .digivice {max-width: 420px; margin: 20px auto; border: 14px solid #300; border-radius: 35px; background: #111; padding: 20px; box-shadow: 0 0 50px #f00;}
         .screen {background: #220000; border: 8px solid #f00; padding: 20px; min-height: 340px; position: relative;}
-        .sprite {font-size: 32px; line-height: 1; margin: 15px 0; white-space: pre; color: #ff0;}
+        .sprite {font-size: 32px; line-height: 1.05; margin: 20px 0; white-space: pre; color: #ff0;}
         button {background: #300; color: #f00; border: 4px solid #f00; padding: 16px; margin: 6px; font-size: 18px; width: 45%; border-radius: 12px;}
         button:active {background: #f00; color: #000;}
     </style>
@@ -18,8 +18,8 @@
         <h1 style="color:#f00; margin:10px;">🔴 PYDIGIVICE 🔴</h1>
         <div class="screen" id="screen">
             <div id="sprite" class="sprite"></div>
-            <div id="name" style="font-size:22px; margin:10px;"></div>
-            <div id="stats" style="line-height:1.7; font-size:17px;"></div>
+            <div id="name" style="font-size:24px; margin:12px 0; color:#ff0;"></div>
+            <div id="stats" style="line-height:1.8; font-size:17px; color:#f88;"></div>
         </div>
         <div style="margin-top:20px;">
             <button onclick="feed()">🍖 Feed</button>
@@ -31,11 +31,11 @@
     </div>
 
     <script>
-        let digi = {name:"Agumon", stage:"Rookie", hunger:80, happiness:70, energy:85, strength:50, age:0, lastTime:Date.now()};
+        let digi = {name:"Agumon", stage:"Rookie", hunger:80, happiness:70, energy:85, strength:55, age:0, lastTime:Date.now()};
 
         const sprites = {
-            Rookie: "　　▲▲▲\n　▲　●　▲\n▲　▼▼▼\n　▼　▼　▼",
-            Champion: "　　▲▲▲▲\n　▲　●　▲\n▲▼▼▼▼▼\n　▼　▼　▼"
+            Rookie: "   /\\_ /\\  \n  ( o.o ) \n   >^<   \n  /  |  \",
+            Champion: "   /\\_ /\\  \n  ( o.o ) \n   >^<   \n  /  |  \\ \n /___|___\\"
         };
 
         function update() {
@@ -43,7 +43,7 @@
             digi.lastTime = Date.now();
             if (delta > 0) {
                 digi.hunger = Math.max(0, digi.hunger - delta*2);
-                digi.happiness = Math.max(0, digi.happiness - delta*1);
+                digi.happiness = Math.max(0, digi.happiness - delta);
                 digi.energy = Math.max(0, digi.energy - delta);
                 digi.age += delta;
             }
@@ -51,20 +51,20 @@
             document.getElementById("name").textContent = digi.name + " (" + digi.stage + ")";
             document.getElementById("stats").innerHTML = `
                 Age: ${Math.floor(digi.age/60)}h ${digi.age%60}m<br>
-                Hunger: ${digi.hunger} 🍖<br>
-                Happiness: ${digi.happiness} 😊<br>
-                Energy: ${digi.energy} ⚡<br>
-                Strength: ${digi.strength} 💪
+                Hunger: ${Math.floor(digi.hunger)} 🍖<br>
+                Happiness: ${Math.floor(digi.happiness)} 😊<br>
+                Energy: ${Math.floor(digi.energy)} ⚡<br>
+                Strength: ${Math.floor(digi.strength)} 💪
             `;
         }
 
-        function feed() { digi.hunger = Math.min(100, digi.hunger + 25); digi.happiness = Math.min(100, digi.happiness + 10); update(); save(); }
-        function train() { if(digi.energy < 20) return alert("Too tired!"); digi.strength = Math.min(100, digi.strength + 20); digi.happiness = Math.min(100, digi.happiness + 15); digi.energy = Math.max(0, digi.energy - 25); update(); save(); }
-        function rest() { digi.energy = Math.min(100, digi.energy + 40); digi.hunger = Math.max(0, digi.hunger - 10); update(); save(); }
+        function feed() { digi.hunger = Math.min(100, digi.hunger + 25); digi.happiness = Math.min(100, digi.happiness + 12); update(); save(); }
+        function train() { if(digi.energy < 20) return alert("Too tired!"); digi.strength = Math.min(100, digi.strength + 22); digi.happiness = Math.min(100, digi.happiness + 18); digi.energy = Math.max(0, digi.energy - 25); update(); save(); }
+        function rest() { digi.energy = Math.min(100, digi.energy + 45); digi.hunger = Math.max(0, digi.hunger - 10); update(); save(); }
         function battle() {
-            if(digi.energy < 25 || digi.hunger > 70) return alert("Too weak!");
-            if(Math.random() < 0.7) { digi.strength = Math.min(100, digi.strength + 25); alert("Victory!"); }
-            else alert("Defeat... keep training!");
+            if(digi.energy < 25 || digi.hunger > 70) return alert("Too weak to battle!");
+            if(Math.random() < 0.72) { digi.strength = Math.min(100, digi.strength + 25); alert("🏆 Victory!"); }
+            else alert("Defeat... Train harder!");
             update(); save();
         }
         function save() { localStorage.setItem("digiSave", JSON.stringify(digi)); }
@@ -73,7 +73,7 @@
             if(saved) digi = JSON.parse(saved);
             update();
         }
-        setInterval(update, 30000);
+        setInterval(update, 25000);
         window.onload = load;
     </script>
 </body>
