@@ -7,8 +7,8 @@
     <style>
         body {font-family: monospace; background: #000; color: #0f0; text-align: center; margin: 0; padding: 10px;}
         .digivice {max-width: 400px; margin: 20px auto; border: 12px solid #222; border-radius: 30px; background: #0a0a0a; padding: 15px; box-shadow: 0 0 40px #0f0;}
-        .screen {background: #001100; border: 6px solid #0f0; padding: 20px; min-height: 320px; font-size: 15px; position: relative;}
-        .ascii {font-size: 24px; line-height: 1.05; margin: 15px 0; white-space: pre; color: #0f0; text-shadow: 0 0 5px #0f0;}
+        .screen {background: #001100; border: 6px solid #0f0; padding: 20px; min-height: 340px; font-size: 15px; position: relative;}
+        .ascii {font-size: 26px; line-height: 1.0; margin: 15px 0; white-space: pre; color: #0f0; text-shadow: 0 0 8px #0f0;}
         button {background: #111; color: #0f0; border: 3px solid #0f0; padding: 14px; margin: 6px; font-size: 17px; width: 45%; border-radius: 12px;}
         button:active {background: #0f0; color: #000;}
         .header {color: #0f0; font-size: 26px; margin: 10px; text-shadow: 0 0 10px #0f0;}
@@ -36,20 +36,9 @@
         let digi = {name:"Agumon",stage:"Rookie",hunger:80,happiness:70,energy:85,strength:50,age:0,lastTime:Date.now()};
         const sprites = {
             "Egg": "   .-.
-  /   \
- (     )
-  \___/",
-            "Rookie": "   /\\_/\\
-  ( o.o )
-   > ^ <
-  /  |  \\
- (   |   )",
-            "Champion": "   /\\_/\\
-  ( o.o )
-   > ^ <
-  /  |  \\
- /___|___\\
-  |  |  |"
+  /   \\n (     )\n  \\___/",
+            "Rookie": "   /\\_/\\\n  ( o.o )\n   > ^ <\n  /  |  \\\n (   |   )",
+            "Champion": "   /\\_/\\\n  ( o.o )\n   > ^ <\n  /  |  \\\n /___|___\\\n  |  |  |"
         };
 
         function update() {
@@ -88,8 +77,8 @@
         function saveGame(){localStorage.setItem("digiSave",JSON.stringify(digi));}
         function load(){const s=localStorage.getItem("digiSave"); if(s) digi=JSON.parse(s); update();}
         
-        setInterval(update, 30000);
-        window.onload = load;
+        setInterval(update, 20000);
+        window.onload = function() { load(); setTimeout(update, 500); };
     </script>
 </body>
 </html>
