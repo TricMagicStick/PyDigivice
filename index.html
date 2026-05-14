@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>PyDigivice</title>
+    <style>
+        body {
+            font-family: monospace;
+            background: #000;
+            color: #0f0;
+            text-align: center;
+            margin: 0;
+            padding: 10px;
+            overflow: hidden;
+        }
+        .digivice {
+            max-width: 380px;
+            margin: 20px auto;
+            border: 8px solid #333;
+            border-radius: 20px;
+            background: #111;
+            padding: 15px;
+            box-shadow: 0 0 30px #0f0;
+        }
+        .screen {
+            background: #001100;
+            border: 4px solid #0f0;
+            padding: 15px;
+            min-height: 280px;
+            position: relative;
+            font-size: 14px;
+        }
+        .ascii { font-size: 18px; line-height: 1; margin: 10px 0; }
+        button {
+            background: #222;
+            color: #0f0;
+            border: 2px solid #0f0;
+            padding: 12px 20px;
+            margin: 5px;
+            font-size: 16px;
+            width: 45%;
+            border-radius: 8px;
+        }
+        button:active { background: #0f0; color: #000; }
+        .status { margin: 10px 0; line-height: 1.4; }
+    </style>
+</head>
+<body>
+    <div class="digivice">
+        <h1 style="color:#0f0; margin:5px;">🔴 PYDIGIVICE 🔴</h1>
+        <div class="screen" id="screen">
+            <div id="ascii" class="ascii"></div>
+            <div id="name-stage" style="font-size:18px; margin:8px;"></div>
+            <div id="stats" class="status"></div>
+        </div>
+        
+        <div style="margin-top:15px;">
+            <button onclick="feed()">🍖 Feed</button>
+            <button onclick="play()">⚔️ Play/Train</button>
+            <button onclick="rest()">💤 Rest</button>
+            <button onclick="battle()">🏆 Battle</button>
+        </div>
+        <button onclick="saveGame()" style="width:90%; margin-top:8px;">💾 Save Progress</button>
+    </div>
+
+    <script>
+        let digimon = {
+            name: "Agumon",
+            stage: "Rookie",
+            hunger: 70,
+            happiness: 60,
+            energy: 80,
+            strength: 40,
+            age: 0,
+            lastTime: Date.now()
+        };
+
+        const asciiArt = {
+            "Egg": "   \n ( )\n/___\\",
+            "Rookie": " /\\_/\\ \n( o.o ) \n > ^ < ",
+            "Champion": " /\\_/\\ \n( o.o ) \n > ^ < \n  / \\"
+        };
+
+        function updateDisplay() {
+            const now = Date.now();
+            const delta = Math.floor((now - digimon.lastTime) / 60000); // minutes passed
+            digimon.lastTime = now;
+
+            if (delta > 0) {
+                digimon.hunger = Math.max(0, digimon.hunger - delta * 3);
+                digimon.happiness = Math.max(0, digimon.happiness - delta * 2);
+                digimon.energy = Math.max(0, digimon.energy - delta);
+                digimon.age += delta;
+            }
+
+            // Evolution
+            if (digimon.stage === "Egg" && digimon.happiness > 50 && digimon.hunger > 40) {
+                digimon.stage = "Rookie";
+            } else if (digimon.stage === "Rookie" && digimon.strength > 55 && digimon.happiness > 75) {
+                digimon.stage = "Champion";
+            }
+
+            document.getElementById("ascii").textContent = asciiArt[digimon.stage] || "???";
+            document.getElementById("name-stage").textContent = `${digimon.name} (${digimon.stage})`;
+            
+            document.getElementById("stats").innerHTML = `
+                Age: ${Math.floor(digimon.age/60)}h ${digimon.age%60}m<br>
+                Hunger: ${Math.floor(digimon.hunger)} ❤️<br>
+                Happiness: ${Math.floor(digimon.happiness)} 😊<br>
+                Energy: ${Math.floor(digimon.energy)} ⚡<br>
+                Strength: ${Math.floor(digimon.strength)} 💪
+            `;
+        }
+
+        function feed() { digimon.hunger = Math.min(100, digimon.hunger + 25); digimon.happiness = Math.min(100, digimon.happiness + 10); updateDisplay(); }
+        function play() { 
+            if (digimon.energy < 20) return alert("Too tired!");
+            digimon.happiness = Math.min(100, digimon.happiness + 25);
+            digimon.strength = Math.min(100, digimon.strength + 15);
+            digimon.energy = Math.max(0, digimon.energy - 20);
+            updateDisplay();
+        }
+        function rest() { digimon.energy = Math.min(100, digimon.energy + 40); digimon.hunger = Math.max(0, digimon.hunger - 8); updateDisplay(); }
+        function battle() {
+            if (digimon.energy < 25 || digimon.hunger > 70) return alert("Too weak to battle!");
+            if (Math.random() < 0.65) {
+                digimon.strength = Math.min(100, digimon.strength + 18);
+                digimon.happiness = Math.min(100, digimon.happiness + 12);
+                alert("🏆 " + digimon.name + " won the battle!");
+            } else {
+                digimon.happiness = Math.max(0, digimon.happiness - 18);
+                alert(digimon.name + " lost... Keep training!");
+            }
+            updateDisplay();
+        }
+
+        function saveGame() {
+            localStorage.setItem("digimonSave", JSON.stringify(digimon));
+            alert("💾 Progress saved to your browser!");
+        }
+
+        function loadGame() {
+            const saved = localStorage.getItem("digimonSave");
+            if (saved) digimon = JSON.parse(saved);
+            updateDisplay();
+        }
+
+        // Auto update every 30 seconds + on load
+        setInterval(updateDisplay, 30000);
+        window.onload = loadGame;
+    </script>
+</body>
+</html>
