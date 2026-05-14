@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>PyDigivice</title>
+    <style>
+        body {font-family: monospace; background: #000; color: #f00; text-align: center; margin: 0; padding: 10px;}
+        .digivice {max-width: 420px; margin: 20px auto; border: 14px solid #300; border-radius: 35px; background: #111; padding: 20px; box-shadow: 0 0 50px #f00;}
+        .screen {background: #220000; border: 8px solid #f00; padding: 20px; min-height: 340px; position: relative;}
+        .sprite {font-size: 32px; line-height: 1; margin: 15px 0; white-space: pre; color: #ff0;}
+        button {background: #300; color: #f00; border: 4px solid #f00; padding: 16px; margin: 6px; font-size: 18px; width: 45%; border-radius: 12px;}
+        button:active {background: #f00; color: #000;}
+    </style>
+</head>
+<body>
+    <div class="digivice">
+        <h1 style="color:#f00; margin:10px;">🔴 PYDIGIVICE 🔴</h1>
+        <div class="screen" id="screen">
+            <div id="sprite" class="sprite"></div>
+            <div id="name" style="font-size:22px; margin:10px;"></div>
+            <div id="stats" style="line-height:1.7; font-size:17px;"></div>
+        </div>
+        <div style="margin-top:20px;">
+            <button onclick="feed()">🍖 Feed</button>
+            <button onclick="train()">⚔️ Train</button><br>
+            <button onclick="rest()">💤 Rest</button>
+            <button onclick="battle()">🏆 Battle</button>
+        </div>
+        <button onclick="save()" style="width:90%; margin-top:15px;">💾 Save Progress</button>
+    </div>
+
+    <script>
+        let digi = {name:"Agumon", stage:"Rookie", hunger:80, happiness:70, energy:85, strength:50, age:0, lastTime:Date.now()};
+
+        const sprites = {
+            Rookie: "　　▲▲▲\n　▲　●　▲\n▲　▼▼▼\n　▼　▼　▼",
+            Champion: "　　▲▲▲▲\n　▲　●　▲\n▲▼▼▼▼▼\n　▼　▼　▼"
+        };
+
+        function update() {
+            const delta = Math.floor((Date.now() - digi.lastTime) / 60000);
+            digi.lastTime = Date.now();
+            if (delta > 0) {
+                digi.hunger = Math.max(0, digi.hunger - delta*2);
+                digi.happiness = Math.max(0, digi.happiness - delta*1);
+                digi.energy = Math.max(0, digi.energy - delta);
+                digi.age += delta;
+            }
+            document.getElementById("sprite").textContent = sprites[digi.stage] || "???";
+            document.getElementById("name").textContent = digi.name + " (" + digi.stage + ")";
+            document.getElementById("stats").innerHTML = `
+                Age: ${Math.floor(digi.age/60)}h ${digi.age%60}m<br>
+                Hunger: ${digi.hunger} 🍖<br>
+                Happiness: ${digi.happiness} 😊<br>
+                Energy: ${digi.energy} ⚡<br>
+                Strength: ${digi.strength} 💪
+            `;
+        }
+
+        function feed() { digi.hunger = Math.min(100, digi.hunger + 25); digi.happiness = Math.min(100, digi.happiness + 10); update(); save(); }
+        function train() { if(digi.energy < 20) return alert("Too tired!"); digi.strength = Math.min(100, digi.strength + 20); digi.happiness = Math.min(100, digi.happiness + 15); digi.energy = Math.max(0, digi.energy - 25); update(); save(); }
+        function rest() { digi.energy = Math.min(100, digi.energy + 40); digi.hunger = Math.max(0, digi.hunger - 10); update(); save(); }
+        function battle() {
+            if(digi.energy < 25 || digi.hunger > 70) return alert("Too weak!");
+            if(Math.random() < 0.7) { digi.strength = Math.min(100, digi.strength + 25); alert("Victory!"); }
+            else alert("Defeat... keep training!");
+            update(); save();
+        }
+        function save() { localStorage.setItem("digiSave", JSON.stringify(digi)); }
+        function load() {
+            const saved = localStorage.getItem("digiSave");
+            if(saved) digi = JSON.parse(saved);
+            update();
+        }
+        setInterval(update, 30000);
+        window.onload = load;
+    </script>
+</body>
+</html>
